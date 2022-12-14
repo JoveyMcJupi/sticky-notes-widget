@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="main.css">
+    <title>NoteApp</title>
+</head>
+<body onload="enableEditMode();">
+    <div class="app" id="app">
+        <div class="topBar" id="topBar">
+            <h1>Sticky Notes</h1>
+        </div>
+        <div className='contents'>
+
+            <p id="placeholderText" class="placeholderText">Type something!</p>
+
+            <div class="richTextFieldWrapper">
+                <iframe src="resources/app/noteContents.html" frameBorder="0" id="richTextField" class="richTextField" name="richTextField" placeholder="Type something..."></iframe>
+            </div>
+            
+            <script type="text/javascript">
+                const { ipcRenderer } = require('electron')
+                var colorBackground;
+
+                ipcRenderer.on('asynchronous-message', function (evt, message) {
+                    document.getElementById('app').style.backgroundColor="rgba(" + (message[0] - 30) + "," + (message[1]  - 35) + "," + (message[2]  - 30) + "," + (message[3]  - 30) + ")";
+                    document.getElementById('topBar').style.backgroundColor="rgba(" + (message[0] - 33) + "," + (message[1]  - 38) + "," + (message[2]  - 33) + "," + (message[3]  - 33) + ")";
+                    document.getElementById('controls').style.borderTop="1px solid rgba(" + (message[0] - 0) + "," + (message[1]  - 0) + "," + (message[2]  - 0) + "," + (message[3]  - 0) + ")";
+                });
+                function enableEditMode () {
+                    richTextField.document.designMode = "On";
+                    document.getElementById('richTextField').contentWindow.document.body.style.fontSize='17px';
+                    document.getElementById('richTextField').contentWindow.document.body.style.fontFamily='Segoe UI Variable Text';
+                    document.getElementById('richTextField').contentWindow.document.body.style.overflowWrap="break-word";
+                    document.getElementById('richTextField').focus();   
+                }
+
+                function execCmd (command) {
+                    richTextField.document.execCommand(command, false, null);
+                    setTimeout(saveHTML, 100);
+                }
+
+                function execCommandWithArg (command, arg) {
+                    richTextField.document.execCommand(command, false, arg);
+                    setTimeout(saveHTML, 100);
+                }
+
+                function toggleButton(element) {
+                    element.classList.toggle("toggled");
+                }
+
+                function controlButtonHover(element) {
+                    element.classList.add("controlButtonHover");
+                }
+
+                function controlButtonHoverOut(element) {
+                    element.classList.remove("controlButtonHover");
+                }
+                
+                function addImage() {
+                    const [file] = fileInput.files
+                    if (file) {
+                        execCommandWithArg('insertImage', file.path);
+                        setTimeout(setImgWidth, 100);
+                    }
+                }
+
+                function saveHTML() {
+                    var frameObj = 
+                        document.getElementById('richTextField');
+
+                    var frameContent = frameObj.
+                        contentWindow.document.body.innerHTML;
+                        
+                    ipcRenderer.send('text', {
+                        data: frameContent
+                    })
+                }
+
+                function setImgWidth() {
+                    var iframe = document.getElementById("richTextField");
+                    var elmnt = iframe.contentWindow.document.getElementsByTagName("img");
+                    for(let i = 0;i < elmnt.length; i++) {
+                        elmnt[i].style.width = "200px";
+                    }
+                    setTimeout(saveHTML, 100);
+                }
+                
+                document.getElementById('richTextField').contentWindow.addEventListener("keydown", (event) => {
+                    setTimeout(saveHTML, 100);
+                });
+
+            </script>
+
+            <script type="text/javascript">
+                    window.setInterval(function() {
+                        if(document.getElementById('richTextField').contentWindow.document.body.childNodes.length === 0) {
+                            document.getElementById('placeholderText').style.color='rgba(255, 255, 255, 0.5)';
+                        } else {
+                            document.getElementById('placeholderText').style.color='rgba(255, 255, 255, 0)';
+                        }
+                    }, 200);           
+                
+            </script>
+            <div class="controls" id="controls">
+                <button class="controlButton" onmouseover="controlButtonHover(this)" onmouseout="controlButtonHoverOut(this)" onclick="execCmd('bold'); toggleButton(this);"><b style="position: relative; bottom: 1px;">B</b></button>
+                <button class="controlButton" onmouseover="controlButtonHover(this)" onmouseout="controlButtonHoverOut(this)" onclick="execCmd('italic'); toggleButton(this);"><i style="padding-right: 5px; position: relative; bottom: 1px;">I</i></button>
+                <button class="controlButton" onmouseover="controlButtonHover(this)" onmouseout="controlButtonHoverOut(this)" onclick="execCmd('underline'); toggleButton(this);"><u style="text-decoration-thickness: 1px; position: relative; bottom: 1px;">U</u></button>
+                <button class="controlButton" onmouseover="controlButtonHover(this)" onmouseout="controlButtonHoverOut(this)" onclick="execCmd('strikeThrough'); toggleButton(this);"><span style="position: relative; right: 3px;"><strike>ab</strike></span></button>
+                <button class="controlButton" onmouseover="controlButtonHover(this)" onmouseout="controlButtonHoverOut(this)" onclick="execCmd('insertUnorderedList');  toggleButton(this);"><img src="icon1.png"></button>
+                <button class="controlButton" onmouseover="controlButtonHover(this)" onmouseout="controlButtonHoverOut(this)" onclick="document.getElementById('fileInput').click();"><img style="width: 22px; right: 2px;" src="icon2.png"></button>
+                <input onchange="addImage()" accept="image/*" id="fileInput" type='file' style="display: none;"/>
+            </div>
+        </div>  
+    </div>
+</body>
+</html>
