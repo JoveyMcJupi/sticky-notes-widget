@@ -31,8 +31,14 @@ This project was started as a result of my frustration about the fact that the d
   <img src="./media/showcase02.png" width="400" /> 
   <img src="./media/showcase03.png" width="400" />
 </div>
+<br>
 
 ## Setup
+To start, open a command prompt in the folder, and then run:
+  ```npm
+  npm install electron-forge
+  ```
+
 * In order to run the project, run:
 
     ```npm
@@ -43,7 +49,7 @@ This project was started as a result of my frustration about the fact that the d
     ```npm
     npm run make
     ```
-    Afterwards you should have both the installer and compiled app in the "out" folder. Make sure to rename "sticky-notes.exe" to "noteapp.exe", and then put "RUN.exe" from the project folder into your compiled app folder. <b> Use "RUN.exe" to start it up otherwise it won't stick to the desktop! </b>
+    Once it's finished, you should have both the installer and compiled app in the "out" folder. Make sure to rename "sticky-notes.exe" to "noteapp.exe", and then put "RUN.exe" from the project folder into your compiled app folder. <b> Use "RUN.exe" to start it up otherwise it won't stick to the desktop! </b>
 
 ## Download
 Click <a href="https://github.com/JoveyMcJupi/sticky-notes-widget/releases">here</a> to download the latest version!
